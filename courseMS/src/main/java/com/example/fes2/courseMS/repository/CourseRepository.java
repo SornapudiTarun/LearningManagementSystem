@@ -8,8 +8,7 @@ import java.util.List;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Courses,String> {
-    public List<Courses> findByTechnology(String technology);
+    List<Courses> findByTechnology(String technology);
     List<Courses> findByTechnologyAndCourseDurationBetween(String technology, int durationFrom, int durationTo);
-
-    public Courses findByCourseName(String courseName);
+    Courses findByCourseName(String courseName);
 }

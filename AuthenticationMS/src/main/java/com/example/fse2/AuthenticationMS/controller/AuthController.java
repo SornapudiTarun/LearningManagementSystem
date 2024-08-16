@@ -20,7 +20,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController()
@@ -73,11 +72,15 @@ public class AuthController {
             }
             return ResponseEntity.badRequest().body(errorsMap);
         }
-        try {
-            HashMap<String, Object> userCreated = createUser(userDTO);
-            return ResponseEntity.ok(userCreated);
-        } catch (Exception e){
-            System.out.println("unable to create user: "+e.getMessage());
+        if(userRepository.findByEmail(userDTO.getEmail())!=null){
+            return ResponseEntity.ok().body("User Already Exist");
+        }else {
+            try {
+                HashMap<String, Object> userCreated = createUser(userDTO);
+                return ResponseEntity.ok(userCreated);
+            } catch (Exception e){
+                System.out.println("unable to create user: "+e.getMessage());
+            }
         }
         return ResponseEntity.badRequest().body("Error");
     }
@@ -165,12 +168,6 @@ public class AuthController {
         var bCryptEncoder = new BCryptPasswordEncoder();
         appUser.setPassword(bCryptEncoder.encode(userDTO.getPassword()));
 
-        AppUser otherUser = userRepository.findByEmail(userDTO.getEmail());
-        HashMap<String, Object> existedUser = new HashMap<>();
-        existedUser.put("User Already exist",existedUser);
-        if (otherUser!=null){
-            return existedUser;
-        }
         userRepository.save(appUser);
 
         String jwtToken = jwtService.createJwtToken(appUser);
